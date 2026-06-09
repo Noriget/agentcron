@@ -1,19 +1,30 @@
 {
-  "name": "agentcron",
-  "main": "src/index.ts",
-  "compatibility_date": "2026-06-01",
-  "observability": { "enabled": true },
-  "triggers": {
-    "crons": ["* * * * *"]
-  },
-  "routes": [
-    { "pattern": "cron.mgm-llc.org", "custom_domain": true }
-  ],
-  "d1_databases": [
-    { "binding": "DB", "database_name": "agentcron", "database_id": "PUT_DATABASE_ID_HERE" }
-  ],
-  "vars": {
-    "FROM_EMAIL": "AgentCron <noreply@mgm-llc.org>",
-    "APP_URL": "https://cron.mgm-llc.org"
-  }
+	"name": "agentcron",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-06-01",
+	"observability": {
+		"enabled": true
+	},
+	"triggers": {
+		"crons": [
+			"* * * * *"
+		]
+	},
+	"routes": [
+		{
+			"pattern": "cron.mgm-llc.org",
+			"custom_domain": true
+		}
+	],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "agentcron",
+			"database_id": "8d9f2b6a-5259-4e78-ae75-1f44d1a0fcc6"
+		}
+	],
+	"vars": {
+		"FROM_EMAIL": "AgentCron <noreply@mgm-llc.org>",
+		"APP_URL": "https://cron.mgm-llc.org"
+	}
 }
