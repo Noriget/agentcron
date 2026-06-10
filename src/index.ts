@@ -155,7 +155,7 @@ app.get('/signup', (c) => c.html(layout('Sign up', `
   <h1>Create your account</h1>
   <form method="POST" action="/signup" class="card" style="max-width:420px">
     <label>Email</label><input name="email" type="email" required>
-    <label>Password (8+ chars)</label><input name="password" type="password" minlength="8" required>
+    <label>Password (12+ characters)</label><input name="password" type="password" minlength="12" required>
     <label style="display:flex;gap:6px;align-items:flex-start;font-weight:400;font-size:13px"><input type="checkbox" name="agree" value="1" required style="width:auto;margin-top:3px"> <span>I agree to the <a href="/terms" target="_blank">Terms</a> and <a href="/privacy" target="_blank">Privacy Policy</a>.</span></label>
     <button class="btn" type="submit">Sign up free</button>
     <p class="muted">Have an account? <a href="/login">Log in</a></p>
@@ -165,7 +165,7 @@ app.post('/signup', async (c) => {
   const b = await c.req.parseBody();
   const email = String(b.email || '').trim().toLowerCase();
   const password = String(b.password || '');
-  if (!email || password.length < 8) return c.html(layout('Sign up', `<div class="card">Invalid email or password too short. <a href="/signup">Back</a></div>`));
+  if (!email || password.length < 12) return c.html(layout('Sign up', `<div class="card">Password must be at least 12 characters. <a href="/signup">Back</a></div>`));
   if (!b.agree) return c.html(layout('Sign up', `<div class="card">You must agree to the Terms and Privacy Policy. <a href="/signup">Back</a></div>`));
   if (await c.env.DB.prepare('SELECT id FROM users WHERE email=?').bind(email).first()) return c.html(layout('Sign up', `<div class="card">Email already registered. <a href="/login">Log in</a></div>`));
   const key = await newApiKey();
