@@ -38,3 +38,9 @@ CREATE TABLE IF NOT EXISTS runs_log (
   result TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_runs_user ON runs_log(user_id, at);
+
+CREATE TABLE IF NOT EXISTS rate_limits (
+  k TEXT PRIMARY KEY,
+  count INTEGER NOT NULL,
+  reset_at INTEGER NOT NULL
+);

@@ -161,7 +161,24 @@ app.get('/signup', (c) => c.html(layout('Sign up', `
     <p class="muted">Have an account? <a href="/login">Log in</a></p>
   </form>`)));
 
+// ---------- rate limiting (D1, fixed window) ----------
+function clientIp(c: any) { return c.req.header('CF-Connecting-IP') || c.req.header('X-Forwarded-For') || 'unknown'; }
+async function rateAllow(env: Env, key: string, limit: number, windowSec: number): Promise<boolean> {
+  const now = Date.now();
+  if (Math.random() < 0.02) { try { await env.DB.prepare('DELETE FROM rate_limits WHERE reset_at < ?').bind(now).run(); } catch {} }
+  const row = await env.DB.prepare('SELECT count, reset_at FROM rate_limits WHERE k=?').bind(key).first<any>();
+  if (!row || now > row.reset_at) {
+    await env.DB.prepare('INSERT INTO rate_limits (k,count,reset_at) VALUES (?,1,?) ON CONFLICT(k) DO UPDATE SET count=1, reset_at=excluded.reset_at').bind(key, now + windowSec * 1000).run();
+    return true;
+  }
+  if (row.count >= limit) return false;
+  await env.DB.prepare('UPDATE rate_limits SET count=count+1 WHERE k=?').bind(key).run();
+  return true;
+}
+async function rateClear(env: Env, key: string) { try { await env.DB.prepare('DELETE FROM rate_limits WHERE k=?').bind(key).run(); } catch {} }
+
 app.post('/signup', async (c) => {
+  if (!(await rateAllow(c.env, `signup:${clientIp(c)}`, 5, 3600))) return c.html(layout('Sign up', `<div class="card">Too many sign-ups from your network. Please try again later. <a href="/signup">Back</a></div>`));
   const b = await c.req.parseBody();
   const email = String(b.email || '').trim().toLowerCase();
   const password = String(b.password || '');
@@ -185,8 +202,12 @@ app.get('/login', (c) => c.html(layout('Log in', `
 
 app.post('/login', async (c) => {
   const b = await c.req.parseBody();
-  const user = await c.env.DB.prepare('SELECT * FROM users WHERE email=?').bind(String(b.email || '').trim().toLowerCase()).first<any>();
+  const email = String(b.email || '').trim().toLowerCase();
+  if (!(await rateAllow(c.env, `login:ip:${clientIp(c)}`, 20, 600)) || !(await rateAllow(c.env, `login:em:${email}`, 8, 900)))
+    return c.html(layout('Log in', `<div class="card">Too many attempts. Please wait a few minutes and try again. <a href="/login">Back</a></div>`));
+  const user = await c.env.DB.prepare('SELECT * FROM users WHERE email=?').bind(email).first<any>();
   if (!user || !(await verifyPassword(String(b.password || ''), user.password))) return c.html(layout('Log in', `<div class="card">Invalid email or password. <a href="/login">Back</a></div>`));
+  await rateClear(c.env, `login:em:${email}`);
   setCookie(c, 'ac_session', await makeToken(c.env.APP_SECRET, user.id), { httpOnly: true, secure: c.env.APP_URL.startsWith('https'), sameSite: 'Lax', path: '/', maxAge: 30 * 864e2 });
   return c.redirect('/dashboard');
 });
