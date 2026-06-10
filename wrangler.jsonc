@@ -25,6 +25,8 @@
 	],
 	"vars": {
 		"FROM_EMAIL": "AgentCron <noreply@mgm-llc.org>",
-		"APP_URL": "https://cron.mgm-llc.org"
+		"APP_URL": "https://cron.mgm-llc.org",
+		"STRIPE_PRICE_ID": "price_1Tgb1XPCEoEl6DCpvOW9WoPm",
+		"STRIPE_PRICE_ID_ANNUAL": "price_1Tgb1uPCEoEl6DCpiUbnefgX"
 	}
 }

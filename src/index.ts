@@ -143,7 +143,10 @@ app.get('/', async (c) => {
     <h2>What it's for</h2>
     <ul class="muted"><li>"Remind me in 2 hours to review the PR." → notification later</li><li>"Check the deploy every 10 minutes and ping me if it fails." → recurring webhook</li><li>"Email me a summary every weekday at 9am." → recurring notification</li><li>"Call this webhook in 30 minutes to resume the workflow." → delayed callback</li></ul>
     <h2>Why AgentCron</h2>
-    <ul class="muted"><li>Tools: <code>schedule_task</code> · <code>list_tasks</code> · <code>cancel_task</code></li><li>Deliver to email, Slack, Discord, webhook — or POST any webhook</li><li>One-off or recurring (repeat interval)</li><li>Free tier — ${FREE_MAX_TASKS} tasks, runs as often as every ${FREE_MIN_INTERVAL / 60} min</li></ul>
+    <ul class="muted"><li>Tools: <code>schedule_task</code> · <code>list_tasks</code> · <code>cancel_task</code></li><li>Deliver to email, Slack, Discord, webhook — or POST any webhook</li><li>One-off or recurring (repeat interval)</li></ul>
+    <h2>Pricing</h2>
+    <div class="card"><strong>Free</strong> — <span class="muted">${FREE_MAX_TASKS} active tasks · runs as often as every ${FREE_MIN_INTERVAL / 60} min · ${FREE_RUNS_MONTH.toLocaleString()} runs/month.</span></div>
+    <div class="card"><strong>Pro — $9/mo or $90/yr</strong><ul class="muted" style="margin:6px 0 0"><li><strong>${PRO_MAX_TASKS} active tasks</strong> (vs ${FREE_MAX_TASKS})</li><li>Schedule as often as <strong>every ${PRO_MIN_INTERVAL}s</strong> (vs ${FREE_MIN_INTERVAL / 60} min)</li><li><strong>${PRO_RUNS_MONTH.toLocaleString()} runs/month</strong> (vs ${FREE_RUNS_MONTH.toLocaleString()})</li><li>Priority email support</li></ul></div>
     <p><a class="btn" href="/signup">Get started free</a></p>
   `));
 });
@@ -206,7 +209,9 @@ app.get('/dashboard', requireAuth, async (c) => {
   }).join('') || `<tr><td colspan="7" class="muted">No tasks yet. Your agent creates them with schedule_task.</td></tr>`;
   const billing = isPro
     ? `<form method="POST" action="/billing/portal" style="margin-top:8px"><button class="btn ghost">Manage billing</button></form>`
-    : `<form method="POST" action="/billing/checkout" style="display:inline-block;margin-top:8px"><button class="btn">Upgrade to Pro — $9/mo</button></form> <form method="POST" action="/billing/checkout?plan=annual" style="display:inline-block;margin-left:8px"><button class="btn ghost">Annual $90/yr</button></form>`;
+    : `<p class="muted" style="margin:10px 0 4px"><strong>Upgrade to Pro ($9/mo or $90/yr) for:</strong></p>
+       <ul class="muted" style="margin:0 0 10px"><li><strong>${PRO_MAX_TASKS} active tasks</strong> (vs ${FREE_MAX_TASKS} on Free)</li><li>Run as often as <strong>every ${PRO_MIN_INTERVAL}s</strong> (vs ${FREE_MIN_INTERVAL / 60} min on Free)</li><li><strong>${PRO_RUNS_MONTH.toLocaleString()} runs/month</strong> (vs ${FREE_RUNS_MONTH.toLocaleString()})</li><li>Priority email support</li></ul>
+       <form method="POST" action="/billing/checkout" style="display:inline-block"><button class="btn">Upgrade to Pro — $9/mo</button></form> <form method="POST" action="/billing/checkout?plan=annual" style="display:inline-block;margin-left:8px"><button class="btn ghost">Annual $90/yr</button></form>`;
   return c.html(layout('Dashboard', `
     <h1>Dashboard</h1>
     <div class="card"><strong>Plan: ${isPro ? 'Pro' : 'Free'}</strong> <span class="muted">— ${active}/${maxTasks} active tasks · ${usedRuns}/${runsCap} runs (30d) · min interval ${(isPro ? PRO_MIN_INTERVAL : FREE_MIN_INTERVAL)}s</span><br>${billing}</div>
