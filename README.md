@@ -11,6 +11,10 @@
   <a href="https://cron.mgm-llc.org/signup">Get an API key (free)</a>
 </p>
 
+<p align="center">
+  <a href="https://cron.mgm-llc.org/signup"><b>▶ Get your free API key → cron.mgm-llc.org/signup</b></a>
+</p>
+
 ---
 
 ## What it does
